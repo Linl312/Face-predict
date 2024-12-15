@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人脸年龄性别预测</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>人脸年龄与性别预测</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <!--上传图片-->
+        <input type="file" id="imageInput" name="image" accept="image/*">
+        <button type="submit">上传图片</button>
+    </form>
+
+    <h3>预测结果：</h3>
+    <div id="result"></div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append("image", document.getElementById("imageInput").files[0]);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    resultDiv.innerHTML = '错误: ' + data.error;
+                } else {
+                    let resultHtml = '';
+                    data.prediction.forEach(item => {
+                        resultHtml += `<p>性别: ${item.gender}, 年龄: ${item.age}</p>`;
+                    });
+                    resultDiv.innerHTML = resultHtml;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
